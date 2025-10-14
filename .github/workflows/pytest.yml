@@ -12,14 +12,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Show repo tree (debug)
+        run: |
+          pwd
+          ls -la
+          echo "----"
+          ls -la tests || true
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
+
       - name: Install deps
         run: |
           python -m pip install -U pip
-          python -m pip install -U pytest
+          # If you have a requirements.txt, prefer:
+          # python -m pip install -r requirements.txt
+          python -m pip install fastapi "pydantic<3" pandas python-docx pytest
+
+      - name: Collect tests (debug)
+        run: |
+          python -m pytest --collect-only -q
+
       - name: Run tests
-        run: python -m pytest -q
+        run: python -m pytest -q tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
